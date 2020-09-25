@@ -13,4 +13,4 @@ loop:
 halt:
 	hlt
 msg:
-	.asciz "hello world"
+	.asciz "Hello world!"
