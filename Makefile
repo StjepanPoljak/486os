@@ -23,7 +23,7 @@ $(PROJ).img: $(builddir)/$(PROJ).elf
 	objcopy -O binary $< $@
 
 run: $(PROJ).img
-	qemu-system-i386 -cpu 486 -serial mon:stdio -drive file=486os.img,format=raw
+	qemu-system-i386 -cpu 486 -serial mon:stdio -drive file=486os.img,format=raw,media=disk
 
 .PHONY=clean
 clean:
