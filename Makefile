@@ -2,7 +2,7 @@ PROJ=486os
 CFLAGS = -m32 -mtune=i386 -Wall -ffreestanding -nostdinc -nostdlib -nostartfiles -Iinclude
 LDFLAGS= -nostdlib -nostartfiles -melf_i386
 
-objs=start.o
+objs=$(addsuffix _S.o,$(basename $(notdir $(wildcard source/*.S))))
 
 srcdir=source
 incdir=include
@@ -13,7 +13,7 @@ all: $(builddir) $(PROJ).img
 $(builddir):
 	mkdir $(builddir)
 
-$(builddir)/%.o: $(srcdir)/%.S
+$(builddir)/%_S.o: $(srcdir)/%.S
 	gcc $(CFLAGS) -c $< -o $@
 
 $(builddir)/$(PROJ).elf: $(addprefix $(builddir)/,$(objs)) link.ld
