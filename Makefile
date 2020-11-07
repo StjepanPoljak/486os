@@ -1,4 +1,5 @@
 PROJ=486os
+
 CFLAGS = -m32 -mtune=i386 -Wall -ffreestanding -nostdinc -nostdlib -nostartfiles -Iinclude
 LDFLAGS= -nostdlib -nostartfiles -melf_i386
 

@@ -10,13 +10,11 @@ SECTIONS {
 		. = 510;
 		SHORT(0xAA55)
 	}
-	//. = 0x8000;
 	.text : {
-		*(.text)
+		*(.entry); *(.text)
 	}
 	.data : {
-		*(.data); *(.rodata)
-		. = 1024;
+		*(.gdt); *(.data); *(.rodata)
 		SHORT(0x0000)
 
 	}

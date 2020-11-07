@@ -8,78 +8,65 @@ _start:
 	cli
 
 	/* GCC expects CS=SS=ES=DS */
-	mov %cs, %ax
-	mov %ax, %ss
-	mov %ax, %ds
-	mov $0x9000, %ax
-	mov %ax, %es
-	xor %bx, %bx
+	mov	%cs, %ax
+	mov	%ax, %ss
+	mov	%ax, %ds
+	mov	%ax, %es
+	xor	%bx, %bx
 
-	mov _ld_early_stack, %sp
+	mov	_ld_early_stack, %sp
 	
 	sti
 
-	movb %dl, dlsave
+	movb	%dl, drive
 
-	mov $msg, %si
-	call print_string
+	mov	$msg, %si
+	call	bios_print_string
 
-	push %es
-	push %bx
-	mov $0x02, %ah
-	mov $1, %al
-	xor %ch, %ch
-	mov $2, %cl
-	movb (dlsave), %dl
-	xor %dh, %dh
-	int $0x13
+	xor	%bx, %bx
+	mov	%bx, %es
 
-loop_read:
-	mov %es:(%bx), %al
-	cmp $0, %al
-	je cont
+	movw	$kernel_entry, %bx
+	movb	(total_sectors), %al
+	movb	(start_sector), %cl
+	
+	movb	(drive), %dl
+	xor	%dh, %dh	/* head 0 */
+	xor	%ch, %ch	/* cylinder 0 */
 
-	movb $0x0e, %ah
-	int $0x10
-	add $1, %bx
-	jmp loop_read
+	mov	$0x02, %ah
+	int	$0x13
 
-cont:
-	pop %bx
-	pop %es
-
-	ret
+	ljmp	$0x0,$kernel_entry
 
 halt:
 	cli
 	hlt
 	jmp halt
 
-print_string:
+.globl bios_print_string
+bios_print_string:
 	pusha
 
 	xor %ax, %ax
 	xor %bx, %bx
 	xor %cx, %cx
 
-print_string_loop:
+bios_print_string_loop:
 	lodsb
 	cmp $0, %al
-	je print_string_end
+	je bios_print_string_end
 
 	movb $0x0e, %ah
 	int $0x10
 
-	jmp print_string_loop
+	jmp bios_print_string_loop
 
-print_string_end:
+bios_print_string_end:
 	popa
 	ret
 
-msg:	.asciz "Hello world!\n\r"
-dlsave: .byte 0
-	.byte 0
-
-.section .data
-
-.asciz "You are now reading from the disk. Isn't that wonderful?\n\r"
+msg:		.asciz "Hello world!\n\r"
+drive:		.byte 0
+total_sectors:	.byte 1
+start_sector:	.byte 2
