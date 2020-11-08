@@ -68,5 +68,5 @@ bios_print_string_end:
 
 msg:		.asciz "Hello world!\n\r"
 drive:		.byte 0
-total_sectors:	.byte 1
+total_sectors:	.byte 3
 start_sector:	.byte 2

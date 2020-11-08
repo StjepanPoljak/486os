@@ -9,13 +9,23 @@ SECTIONS {
 		*(.boot)
 		. = 510;
 		SHORT(0xAA55)
+		*(.entry)
+		. = ALIGN(16);
+		*(.gdt)
 	}
+	. = ALIGN(16);
 	.text : {
-		*(.entry); *(.text)
+		*(.text)
 	}
+	. = ALIGN(16);
 	.data : {
-		*(.gdt); *(.data); *(.rodata)
-		SHORT(0x0000)
+		*(.data); *(.rodata)
 
+	}
+	. = ALIGN(16);
+	.bss : {
+		_ld_bss_start = .;
+		*(.bss)
+		_ld_bss_end = .;
 	}
 }

@@ -1,9 +1,10 @@
 PROJ=486os
 
-CFLAGS = -m32 -mtune=i386 -Wall -ffreestanding -nostdinc -nostdlib -nostartfiles -Iinclude
+CFLAGS = -mtune=i386 -Wall -ffreestanding -nostdinc -nostdlib -nostartfiles -Iinclude
 LDFLAGS= -nostdlib -nostartfiles -melf_i386
 
-objs=$(addsuffix _S.o,$(basename $(notdir $(wildcard source/*.S))))
+objs = $(filter-out entry_S.o,$(filter-out boot_S.o,$(addsuffix _S.o,$(basename $(notdir $(wildcard source/*.S))))))
+objs += $(addsuffix _c.o,$(basename $(notdir $(wildcard source/*.c))))
 
 srcdir=source
 incdir=include
@@ -14,10 +15,16 @@ all: $(builddir) $(PROJ).img
 $(builddir):
 	mkdir $(builddir)
 
-$(builddir)/%_S.o: $(srcdir)/%.S
-	gcc $(CFLAGS) -c $< -o $@
+$(builddir)/%_BS.o: $(srcdir)/%.S
+	gcc -m16 $(CFLAGS) -c $< -o $@
 
-$(builddir)/$(PROJ).elf: $(addprefix $(builddir)/,$(objs)) link.ld
+$(builddir)/%_S.o: $(srcdir)/%.S
+	gcc -m32 $(CFLAGS) -c $< -o $@
+
+$(builddir)/%_c.o: $(srcdir)/%.c
+	gcc -m32 $(CFLAGS) -c $< -o $@
+
+$(builddir)/$(PROJ).elf: $(addprefix $(builddir)/,$(objs)) $(builddir)/boot_BS.o $(builddir)/entry_BS.o link.ld
 	ld $(LDFLAGS) $(filter-out link.ld,$^) -T link.ld -o $@
 
 $(PROJ).img: $(builddir)/$(PROJ).elf

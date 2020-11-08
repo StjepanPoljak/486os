@@ -3,18 +3,42 @@
 .globl kernel_entry
 kernel_entry:
 
-	mov %cs, %ax
-	mov %ax, %es
-	mov %ax, %ds
-	mov %ax, %ss
-	mov $0xFFF0, %sp
+	mov	%cs, %ax
+	mov	%ax, %es
+	mov	%ax, %ds
+	mov	%ax, %ss
+	mov	$0xFFF0, %sp
 
-	mov $msg2, %si	
-	call bios_print_string
+	mov	$msg2, %si	
+	call	bios_print_string
 
-.section .data
+	mov	$msg3, %si
+	call	bios_print_string
+
+	xor	%ah, %ah
+	int	$0x16
+
+	mov	$0x3, %ax
+	int	$0x10
+
+	xor	%al, %al
+	mov	_ld_bss_start, %bx
+	mov	_ld_bss_end, %cx
+bss_zero_loop:
+	mov	%al, (%bx)
+	add	$0x1, %bx
+	cmp	%cx, %bx
+	jne	bss_zero_loop
+
+	cli
+	lgdt	gdt_ptr
+	mov	%cr0, %eax
+	or	$0x1, %eax
+	mov	%eax, %cr0
+	ljmp	$0x10,$kmain	/* 0x10 points to code segment in gdt */
 
 msg2: .asciz "You are now reading from the disk. Isn't that wonderful?\n\r"
+msg3: .asciz "Press any key to continue..."
 
 .section .gdt
 
