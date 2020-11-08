@@ -1,7 +1,8 @@
 .code16
 .section .boot
 
-ljmp $0x0, $_start
+/* make sure CS is properly set */
+ljmp	$0x0, $_start
 
 .globl _start
 _start:
@@ -15,10 +16,9 @@ _start:
 	xor	%bx, %bx
 
 	mov	_ld_early_stack, %sp
-	
-	sti
-
 	movb	%dl, drive
+
+	sti
 
 	mov	$msg, %si
 	call	bios_print_string
@@ -27,7 +27,7 @@ _start:
 	mov	%bx, %es
 
 	movw	$kernel_entry, %bx
-	movb	(total_sectors), %al
+	movb	(_ld_total_sectors), %al
 	movb	(start_sector), %cl
 	
 	movb	(drive), %dl
@@ -42,25 +42,25 @@ _start:
 halt:
 	cli
 	hlt
-	jmp halt
+	jmp	halt
 
 .globl bios_print_string
 bios_print_string:
 	pusha
 
-	xor %ax, %ax
-	xor %bx, %bx
-	xor %cx, %cx
+	xor	%ax, %ax
+	xor	%bx, %bx
+	xor	%cx, %cx
 
 bios_print_string_loop:
 	lodsb
-	cmp $0, %al
-	je bios_print_string_end
+	cmp	$0, %al
+	je	bios_print_string_end
 
-	movb $0x0e, %ah
-	int $0x10
+	movb	$0x0e, %ah
+	int	$0x10
 
-	jmp bios_print_string_loop
+	jmp	bios_print_string_loop
 
 bios_print_string_end:
 	popa
@@ -68,5 +68,4 @@ bios_print_string_end:
 
 msg:		.asciz "Hello world!\n\r"
 drive:		.byte 0
-total_sectors:	.byte 3
 start_sector:	.byte 2

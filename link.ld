@@ -7,7 +7,10 @@ SECTIONS {
 	_ld_early_stack = .;
 	.boot : {
 		*(.boot)
-		. = 510;
+		. = 509;
+		_ld_total_sectors = .;
+		BYTE(0x0)
+		_ld_magic_number = .;
 		SHORT(0xAA55)
 		*(.entry)
 		. = ALIGN(16);

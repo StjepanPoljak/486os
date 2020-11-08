@@ -29,6 +29,7 @@ $(builddir)/$(PROJ).elf: $(addprefix $(builddir)/,$(objs)) $(builddir)/boot_BS.o
 
 $(PROJ).img: $(builddir)/$(PROJ).elf
 	objcopy -O binary $< $@
+	stat --format="%s" $@ | awk '{ printf("%c", (int($$0 / 512))) }' | dd of=$@ bs=1 seek=509 count=1 conv=notrunc
 
 run: $(PROJ).img
 	qemu-system-i386 -cpu 486 -serial mon:stdio -drive file=486os.img,format=raw,media=disk
@@ -36,4 +37,3 @@ run: $(PROJ).img
 .PHONY=clean
 clean:
 	rm -rf $(PROJ).img $(builddir)
-
